@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(PicoI2CTest PicoI2CTest.c )
+add_executable(PicoI2CTest PicoI2CTest.c i2c.cpp)
 
 pico_set_program_name(PicoI2CTest "PicoI2CTest")
 pico_set_program_version(PicoI2CTest "0.1")
@@ -61,6 +61,7 @@ target_include_directories(PicoI2CTest PRIVATE
 target_link_libraries(PicoI2CTest 
         hardware_i2c
         hardware_pio
+        pico_multicore
         )
 
 pico_add_extra_outputs(PicoI2CTest)
