@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
@@ -14,16 +15,21 @@ extern "C" {
 #include <string.h>
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
+#include "pindefs.h"
 
-//bool reserved_addr(uint8_t);
 
-// Function prototype for scan
-void scan();
 
+void i2c_start_init(i2c_inst_t *);
+
+bool reserved_addr(uint8_t);
+
+void i2c_scan(i2c_inst_t *);
+
+uint8_t i2c_read(i2c_inst_t *, uint8_t, uint8_t);
+
+void i2c_write(i2c_inst_t *, uint8_t, uint8_t, float[4]);
 
 #ifdef __cplusplus
 }
 #endif
-
-
 #endif 
