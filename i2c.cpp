@@ -12,7 +12,7 @@ void i2c_start_init(i2c_inst_t *i2c){
     bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
 
     // Initialize I2C with a baud rate of 100 kHz
-    i2c_init(i2c, 100000);
+    i2c_init(i2c, BAUD_RATE);
 }
 
 bool reserved_addr(uint8_t addr) {
@@ -26,48 +26,51 @@ void i2c_scan(i2c_inst_t *i2c){
             int ret=0;
             uint8_t rxdata;
             //printf("Scanning address 0x%02x\n", addr);
-            if (reserved_addr(addr))
+            if (reserved_addr(addr)){
                 ret = PICO_ERROR_GENERIC;
+            }
             else
                 ret = i2c_read_blocking(i2c, addr, &rxdata, 1, false);
             if (ret>0){
                 printf("Found device at 0x%02x\n", addr);
+                
             }
         }
         printf("Done.\n");
 }
 
-
-uint8_t i2c_read(i2c_inst_t *i2c, uint8_t addr, uint8_t internal_address) {
-    uint8_t read_data = 0;
+void i2c_read(i2c_inst_t *i2c, uint8_t addr, uint8_t internal_address, uint8_t *buf, size_t length) {
 
     // Send the internal address to the device
     int result = i2c_write_blocking(i2c, addr, &internal_address, 1, true);
     if (result == PICO_ERROR_GENERIC) {
-        printf("I2C write failed\n");
+        printf("I2C READ_Write failed - CODE 10\n");
         return;
     }
 
-    // Read the data from the device
-    result = i2c_read_blocking(i2c, addr, &read_data, 4, false);
+
+    result = i2c_read_blocking(i2c, addr, buf, length, false);
     if (result == PICO_ERROR_GENERIC) {
-        printf("I2C read failed\n");
-        return;
+        printf("I2C READ failed - CODE 11\n");
     }
 
-    // Print the data
-    printf("Data read from address 0x%02X: 0x%02X\n", internal_address, read_data);
 
-    return 0;
+    //  uint8_t buf[4];
+    //     i2c_read(i2c, 0x09, 120, buf, READLENGTH); 
+
+    //     printf("Received: ");
+    //     for (int i = 0; i < 4; i++) {
+    //         printf("%d ", buf[i]);
+    //     }
+    //     printf("\n");
 }
 
-
-void i2c_write(i2c_inst_t *i2c, uint8_t addr, uint8_t internal_address, float data[2]) {
-
-    // Send the internal address to the device
-    int result = i2c_write_blocking(i2c, addr, &internal_address, 2, true);
+void i2c_write(i2c_inst_t *i2c, uint8_t addr, uint8_t internal_address, uint8_t data, size_t length) {
+    uint8_t buf[2] = {internal_address, data};
+    int result = i2c_write_blocking(i2c, addr, buf, length, false);
     if (result == PICO_ERROR_GENERIC) {
-        printf("I2C write failed\n");
-        return;
+        printf("I2C WRITE failed - CODE 12\n");
     }
+
+    //i2c_write(i2c, 0x09, 10, 50, WRITELENGTH);
 }

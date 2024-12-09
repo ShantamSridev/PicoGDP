@@ -25,9 +25,9 @@ bool reserved_addr(uint8_t);
 
 void i2c_scan(i2c_inst_t *);
 
-uint8_t i2c_read(i2c_inst_t *, uint8_t, uint8_t);
+void i2c_read(i2c_inst_t *, uint8_t, uint8_t, uint8_t *, size_t);
 
-void i2c_write(i2c_inst_t *, uint8_t, uint8_t, float[4]);
+void i2c_write(i2c_inst_t *, uint8_t, uint8_t, uint8_t, size_t);
 
 #ifdef __cplusplus
 }

@@ -17,18 +17,51 @@ extern "C" {
 
 
 
-// I2C pins
+// I2C
 #define SDA_PIN  16  // GPIO16 as SDA
 #define SCL_PIN  17  // GPIO17 as SCL
 
+#define I2CINSTANCE i2c0
+#define BAUD_RATE 100000
+#define WRITELENGTH 2
+#define READLENGTH 4
+
+#define TESTSCANLENGTH 10 // for testing purposes for workshop
+
+//LED pins
 #define LED_1_B 10
 #define LED_1_R 11
 #define LED_2_B 12
 #define LED_2_R 13
 
+//TOP pins
+#define TOP_ENABLE 6
+#define TOP_FAULT 7
+#define TOP_CURRENT A1
+
+
+
+
+
+// ERROR CODES
+// 10 i2c_read
+// 11 i2c_read
+// 12 i2c_write
+// 13 i2c_scan
+
+#define BATT_TYPE 1
+#define NODE_TYPE 2
+#define WIRE_TYPE 3
+#define BUTTON_TYPE 4
+#define VAR_RESISTOR_TYPE 5
+#define LED_TYPE 6
+#define MOTOR_TYPE 7
+#define BUZZER_TYPE 8
+#define SENSOR_TYPE 9
+
 #ifdef __cplusplus
 }
+
+
 #endif
-
-
-#endif 
+#endif
