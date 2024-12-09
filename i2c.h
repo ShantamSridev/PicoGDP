@@ -29,6 +29,8 @@ void i2c_read(i2c_inst_t *, uint8_t, uint8_t, uint8_t *, size_t);
 
 void i2c_write(i2c_inst_t *, uint8_t, uint8_t, uint8_t, size_t);
 
+uint8_t read_type(i2c_inst_t *i2c, uint8_t addr);
+
 #ifdef __cplusplus
 }
 #endif

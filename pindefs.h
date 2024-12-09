@@ -40,7 +40,11 @@ extern "C" {
 #define TOP_CURRENT A1
 
 
-
+#define ADD_TYPE 0
+#define ADD_NIEGHBOURS 4
+#define ADD_POS_NEIGHBOUR 8
+#define ADD_POLARISATION 12
+#define ADD_LIVE_STATE 16
 
 
 // ERROR CODES
