@@ -12,39 +12,29 @@ void core1_main() {
 
 int main() {
     stdio_init_all();
-    multicore_launch_core1(core1_main);
-    sleep_ms(10000); // Wait for USB connection if needed
+    sleep_ms(10000); // Wait for USB connection
 
-    extern volatile uint8_t mem_buf[128][6]; 
-    extern volatile uint8_t scan_buf[128];
+    mutex_t shared_memory_mutex;
+    extern volatile uint8_t mem_buf[MEM_BUF_SIZE][MEM_BUF_ROW_SIZE]; 
+    mutex_init(&shared_memory_mutex);
+    multicore_launch_core1(core1_main);
     
+
     // Initialize I2C
-    i2c_inst_t *i2c = i2c0;  // Using I2C0 instance
+    i2c_inst_t *i2c = I2CINSTANCE;  // Using I2C0 instance
     i2c_start_init(i2c);
 
     // Initialize LEDs
     led_init();
-    gpio_init(6);
-    gpio_set_dir(6, GPIO_OUT);
-    gpio_put(6, 1);
-    gpio_init(7);
-    gpio_set_dir(7, GPIO_OUT);
-    gpio_put(7, 1);
 
+    uint8_t state = STATE_SCAN;
+    uint8_t new_state;
     while (1) {
-        i2c_scan(i2c);
-        read_type(i2c, 0x09);
-        // i2c_write(i2c, 0x09, 10, 50, WRITELENGTH);
+        
+        new_state = asm_run(state);
+        state = new_state;
 
-        // uint8_t buf2[4];
-        // i2c_read(i2c, 0x09, 10, buf2, READLENGTH); 
-
-        // printf("Received: ");
-        // for (int i = 0; i < 4; i++) {
-        //     printf("%d ", buf2[i]);
-        // }
-        // printf("\n");
-        sleep_ms(2000);
+        sleep_ms(100);
     }
     return 0;
 }

@@ -19,11 +19,12 @@ bool reserved_addr(uint8_t addr) {
     return (addr & 0x78) == 0 || (addr & 0x78) == 0x78;
 }
 
-void i2c_scan(i2c_inst_t *i2c){
+void i2c_scan(i2c_inst_t *i2c, uint8_t *buf){
         for (int addr = 0; addr < (1 << 7); ++addr) {
 
             // Skip over any reserved addresses.
             int ret=0;
+            int count = 0;
             uint8_t rxdata;
             //printf("Scanning address 0x%02x\n", addr);
             if (reserved_addr(addr)){
@@ -32,8 +33,11 @@ void i2c_scan(i2c_inst_t *i2c){
             else
                 ret = i2c_read_blocking(i2c, addr, &rxdata, 1, false);
             if (ret>0){
-                printf("Found device at 0x%02x\n", addr);
-                
+                //printf("Found device at 0x%02x\n", addr);
+                //Need to input into the buffer
+                buf[count] = addr;
+                printf("Buffer: %d\n", buf[count]);
+                count++;
             }
         }
         printf("Done.\n");
@@ -81,3 +85,10 @@ uint8_t read_type(i2c_inst_t *i2c, uint8_t addr) {
     printf("Type: %d\n", buf[0]);
     return buf[0];
 }
+
+// mutex_enter_blocking(&shared_memory_mutex);
+//     // Write to mem_buf
+//     mem_buf[0][0] = 42;
+//     // Read from scan_buf
+//     uint8_t value = scan_buf[0];
+//     mutex_exit(&shared_memory_mutex);

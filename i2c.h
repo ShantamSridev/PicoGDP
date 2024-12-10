@@ -5,33 +5,52 @@
 extern "C" {
 #endif
 
-
-
-#include <stdio.h>
-#include "pico/stdlib.h"
-#include "pico/binary_info.h"
-#include "hardware/i2c.h"
-#include <pico/stdlib.h>
-#include <string.h>
-#include "hardware/gpio.h"
-#include "hardware/irq.h"
 #include "pindefs.h"
-
-
 
 void i2c_start_init(i2c_inst_t *);
 
 bool reserved_addr(uint8_t);
 
-void i2c_scan(i2c_inst_t *);
+/*! \brief  Scan I2C bus for devices
+ *  \ingroup i2c.h
+ *
+ * \param i2c Either \ref i2c0 or \ref i2c1
+ * \param buf Pointer to buffer to receive addresses of devices found
+ */
+void i2c_scan(i2c_inst_t *, uint8_t *);
 
+/*! \brief  Attempt to read specified number of bytes from address, blocking
+ *  \ingroup i2c.h
+ *
+ * \param i2c Either \ref i2c0 or \ref i2c1
+ * \param addr 7-bit address of device to read from
+ * \param internal_address Address of internal register to read from
+ * \param buf Pointer to buffer to receive data
+ * \param len Length of data in bytes to receive
+ */
 void i2c_read(i2c_inst_t *, uint8_t, uint8_t, uint8_t *, size_t);
 
+/*! \brief  Attempt to write specified number of bytes to address, blocking
+ *  \ingroup i2c.h
+ *
+ * \param i2c Either \ref i2c0 or \ref i2c1
+ * \param addr 7-bit address of device to write to
+ * \param internal_address Address of internal register to write to
+ * \param data Data to write
+ * \param len Length of data in bytes to write
+ */
 void i2c_write(i2c_inst_t *, uint8_t, uint8_t, uint8_t, size_t);
 
+/*! \brief  Read type of device at address
+ *  \ingroup i2c.h
+ *
+ * \param i2c Either \ref i2c0 or \ref i2c1
+ * \param addr 7-bit address of device to read from
+ * \return Type of device at address
+ */
 uint8_t read_type(i2c_inst_t *i2c, uint8_t addr);
 
 #ifdef __cplusplus
 }
 #endif
-#endif 
+#endif

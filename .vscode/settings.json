@@ -42,6 +42,7 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "binary_info.h": "c",
-        "multicore.h": "c"
+        "multicore.h": "c",
+        "pindefs.h": "c"
     }
 }

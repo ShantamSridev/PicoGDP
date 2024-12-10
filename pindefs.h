@@ -16,7 +16,6 @@ extern "C" {
 #include "hardware/irq.h"
 
 
-
 // I2C
 #define SDA_PIN  16  // GPIO16 as SDA
 #define SCL_PIN  17  // GPIO17 as SCL
@@ -27,6 +26,9 @@ extern "C" {
 #define READLENGTH 4
 
 #define TESTSCANLENGTH 10 // for testing purposes for workshop
+
+#define MEM_BUF_SIZE 128
+#define MEM_BUF_ROW_SIZE 6
 
 //LED pins
 #define LED_1_B 10
@@ -46,6 +48,11 @@ extern "C" {
 #define ADD_POLARISATION 12
 #define ADD_LIVE_STATE 16
 
+#define STATE_SCAN 0
+#define STATE_EMPTY 1
+#define STATE_CHANGE 2
+#define STATE_NO_CHANGE 3
+#define STATE_NO_CHANGE_LIVE 4
 
 // ERROR CODES
 // 10 i2c_read
