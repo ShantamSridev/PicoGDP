@@ -1,7 +1,10 @@
 #include "pindefs.h"
 #include "i2c.h"
 #include "led.h"
+#include "asm.h"
+#include "shared_buf.h"
 
+SharedBuffer mem_buf;
 
 void core1_main() {
     while (1) {
@@ -15,7 +18,7 @@ int main() {
     sleep_ms(10000); // Wait for USB connection
 
     mutex_t shared_memory_mutex;
-    extern volatile uint8_t mem_buf[MEM_BUF_SIZE][MEM_BUF_ROW_SIZE]; 
+    //extern volatile uint8_t mem_buf[MEM_BUF_SIZE][MEM_BUF_ROW_SIZE]; 
     mutex_init(&shared_memory_mutex);
     multicore_launch_core1(core1_main);
     
@@ -44,3 +47,10 @@ int main() {
 // TO STORE THE PREVIOUS ADDRESSES AND COMPARE THEM TO THE CURRENT ADDRESSES. IF THERE IS A CHANGE THEN THE NEW ADDRESSES WILL 
 //TYPE WILL BE CHECKED INTO MEM_BUF
 //INTRODUCE STATE MACHINE FOR CONTINUOUS CHECK.
+
+// mutex_enter_blocking(&shared_memory_mutex);
+//     // Write to mem_buf
+//     mem_buf[0][0] = 42;
+//     // Read from scan_buf
+//     uint8_t value = scan_buf[0];
+//     mutex_exit(&shared_memory_mutex);

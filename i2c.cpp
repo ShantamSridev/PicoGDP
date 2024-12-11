@@ -85,10 +85,3 @@ uint8_t read_type(i2c_inst_t *i2c, uint8_t addr) {
     printf("Type: %d\n", buf[0]);
     return buf[0];
 }
-
-// mutex_enter_blocking(&shared_memory_mutex);
-//     // Write to mem_buf
-//     mem_buf[0][0] = 42;
-//     // Read from scan_buf
-//     uint8_t value = scan_buf[0];
-//     mutex_exit(&shared_memory_mutex);

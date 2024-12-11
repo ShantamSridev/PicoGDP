@@ -28,7 +28,8 @@ extern "C" {
 #define TESTSCANLENGTH 10 // for testing purposes for workshop
 
 #define MEM_BUF_SIZE 128
-#define MEM_BUF_ROW_SIZE 6
+#define MEM_BUF_ROW_SIZE 7
+#define MEM_BUF_NEIGHBOUR_START 3
 
 //LED pins
 #define LED_1_B 10
@@ -49,7 +50,6 @@ extern "C" {
 #define ADD_LIVE_STATE 16
 
 #define STATE_SCAN 0
-#define STATE_EMPTY 1
 #define STATE_CHANGE 2
 #define STATE_NO_CHANGE 3
 #define STATE_NO_CHANGE_LIVE 4

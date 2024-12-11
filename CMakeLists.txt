@@ -39,6 +39,7 @@ add_executable(PicoI2CTest PicoI2CTest.c
 i2c.cpp
 led.cpp
 asm.cpp
+shared_buf.cpp
 )
 
 pico_set_program_name(PicoI2CTest "PicoI2CTest")

@@ -9,6 +9,7 @@ extern "C" {
 #include "i2c.h"
 
 uint8_t prev_buf[MEM_BUF_SIZE];
+bool circuit_live;
 
 uint8_t asm_select(void);
 
