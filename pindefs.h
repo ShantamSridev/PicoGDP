@@ -1,12 +1,10 @@
 #ifndef PINDEFS_H
 #define PINDEFS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
@@ -28,8 +26,7 @@ extern "C" {
 #define TESTSCANLENGTH 10 // for testing purposes for workshop
 
 #define MEM_BUF_SIZE 128
-#define MEM_BUF_ROW_SIZE 7
-#define MEM_BUF_NEIGHBOUR_START 3
+#define MEM_BUF_ROW_SIZE 9
 
 //LED pins
 #define LED_1_B 10
@@ -42,12 +39,12 @@ extern "C" {
 #define TOP_FAULT 7
 #define TOP_CURRENT A1
 
-
-#define ADD_TYPE 0
-#define ADD_NIEGHBOURS 4
-#define ADD_POS_NEIGHBOUR 8
-#define ADD_POLARISATION 12
-#define ADD_LIVE_STATE 16
+#define ADD_ADDRESS 0
+#define ADD_TYPE 1
+#define ADD_NEIGHBOUR 2
+#define ADD_POS_NEIGHBOUR 3
+#define ADD_ACTIVE 7  // polarisation, switch state
+#define ADD_LIVE_STATE 8 // 1 if live, 0 if not
 
 #define STATE_SCAN 0
 #define STATE_CHANGE 2
@@ -70,9 +67,12 @@ extern "C" {
 #define BUZZER_TYPE 8
 #define SENSOR_TYPE 9
 
-#ifdef __cplusplus
-}
+#define I2C_ADD_ADDRESS 0
+#define I2C_ADD_TYPE 4
+#define I2C_ADD_NEIGHBOUR 8
+#define I2C_ADD_POS_NEIGHBOUR 12
+#define I2C_ADD_ACTIVE 16  // polarisation, switch state
+#define ADD_LIVE_STATE 20 
 
 
-#endif
 #endif

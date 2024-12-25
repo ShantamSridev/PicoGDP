@@ -81,7 +81,19 @@ void i2c_write(i2c_inst_t *i2c, uint8_t addr, uint8_t internal_address, uint8_t 
 
 uint8_t read_type(i2c_inst_t *i2c, uint8_t addr) {
     uint8_t buf[4];
-    i2c_read(i2c, addr, ADD_TYPE, buf, READLENGTH);
+    i2c_read(i2c, addr, I2C_ADD_TYPE, buf, READLENGTH);
     printf("Type: %d\n", buf[0]);
+    return buf[0];
+}
+
+void read_neighbours(i2c_inst_t *i2c, uint8_t addr, uint8_t *buf) {
+    i2c_read(i2c, addr, I2C_ADD_NEIGHBOUR, buf, READLENGTH);
+    //4 neighbours are found at buf[0], buf[1], buf[2], buf[3]
+}
+
+uint8_t read_active(i2c_inst_t *i2c, uint8_t addr) {
+    uint8_t buf[2];
+    i2c_read(i2c, addr, I2C_ADD_ACTIVE, buf, READLENGTH);
+    //2 active states are found at buf[0], buf[1]
     return buf[0];
 }

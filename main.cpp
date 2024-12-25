@@ -35,22 +35,10 @@ int main() {
     while (1) {
         
         new_state = asm_run(state);
+        printf("State: %d\n", state);
         state = new_state;
 
         sleep_ms(100);
     }
     return 0;
 }
-
-
-//MAKE 128X6 MEM_BUF AND SCAN SHOULD FEED IN ADDRESSES TO THE MEM_BUF AND CHECK FOR CHANGE. SO A 128 SCAN_BUF WILL BE USED
-// TO STORE THE PREVIOUS ADDRESSES AND COMPARE THEM TO THE CURRENT ADDRESSES. IF THERE IS A CHANGE THEN THE NEW ADDRESSES WILL 
-//TYPE WILL BE CHECKED INTO MEM_BUF
-//INTRODUCE STATE MACHINE FOR CONTINUOUS CHECK.
-
-// mutex_enter_blocking(&shared_memory_mutex);
-//     // Write to mem_buf
-//     mem_buf[0][0] = 42;
-//     // Read from scan_buf
-//     uint8_t value = scan_buf[0];
-//     mutex_exit(&shared_memory_mutex);

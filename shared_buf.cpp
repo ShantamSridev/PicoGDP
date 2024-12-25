@@ -2,13 +2,17 @@
 #include <stdexcept>
 
 SharedBuffer::SharedBuffer() {
-    std::fill_n(buf, sizeof(buf)/sizeof(buf[0]), 0); // Initialize all elements to 0
+    for (size_t i = 0; i < MEM_BUF_SIZE; ++i) {
+        for (size_t j = 0; j < MEM_BUF_ROW_SIZE; ++j) {
+            buf[i][j] = 0;
+        }
+    }
 }
 
 void SharedBuffer::write(size_t index1,size_t index2, uint8_t value) {
     //std::lock_guard<std::mutex> lock(mutex_);
     if (index1 >= sizeof(buf[0])) {
-        throw std::out_of_range("Index out of bounds");
+        //throw std::out_of_range("Index out of bounds");
     }
     buf[index1][index2] = value;
 }
@@ -16,7 +20,7 @@ void SharedBuffer::write(size_t index1,size_t index2, uint8_t value) {
 uint8_t SharedBuffer::read(size_t index1,size_t index2) {
     //std::lock_guard<std::mutex> lock(mutex_);
     if (index1 >= sizeof(buf[0])) {
-        throw std::out_of_range("Index out of bounds");
+        //throw std::out_of_range("Index out of bounds");
     }
     return buf[index1][index2];
 }
