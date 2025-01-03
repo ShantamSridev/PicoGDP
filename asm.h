@@ -7,7 +7,7 @@
 
 extern bool circuit_live;
 
-uint8_t asm_select(void);
+//uint8_t asm_select(void);
 
 /*! \brief Run the assembly state machine
  *  \ingroup asm.h
@@ -40,5 +40,12 @@ bool address_exists(uint8_t address);
  * \return true if address was deleted, false otherwise
  */
 bool mem_address_delete(uint8_t *scan_buf);
+
+/*! \brief Get the number of devices in the memory buffer
+ *  \ingroup asm.h
+ *
+ * \return Number of devices in the memory buffer
+ */
+int device_count();
 
 #endif

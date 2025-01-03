@@ -34,11 +34,11 @@ int main() {
     uint8_t new_state;
     while (1) {
         
-        new_state = asm_run(state);
         printf("State: %d\n", state);
+        new_state = asm_run(state);
         state = new_state;
 
-        sleep_ms(100);
+        sleep_ms(1000);
     }
     return 0;
 }

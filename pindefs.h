@@ -47,9 +47,9 @@
 #define ADD_LIVE_STATE 8 // 1 if live, 0 if not
 
 #define STATE_SCAN 0
-#define STATE_CHANGE 2
-#define STATE_NO_CHANGE 3
-#define STATE_NO_CHANGE_LIVE 4
+#define STATE_CHANGE 1
+#define STATE_NO_CHANGE 2
+#define STATE_CHANGE_LIVE 3
 
 // ERROR CODES
 // 10 i2c_read
@@ -72,7 +72,7 @@
 #define I2C_ADD_NEIGHBOUR 8
 #define I2C_ADD_POS_NEIGHBOUR 12
 #define I2C_ADD_ACTIVE 16  // polarisation, switch state
-#define ADD_LIVE_STATE 20 
+#define I2C_ADD_LIVE_STATE 20 
 
 
 #endif

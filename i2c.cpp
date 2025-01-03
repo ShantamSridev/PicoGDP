@@ -36,11 +36,11 @@ void i2c_scan(i2c_inst_t *i2c, uint8_t *buf){
                 //printf("Found device at 0x%02x\n", addr);
                 //Need to input into the buffer
                 buf[count] = addr;
-                printf("Buffer: %d\n", buf[count]);
+                //printf("Buffer: %d\n", buf[count]);
                 count++;
             }
         }
-        printf("Done.\n");
+        //printf("Done.\n");
 }
 
 void i2c_read(i2c_inst_t *i2c, uint8_t addr, uint8_t internal_address, uint8_t *buf, size_t length) {
