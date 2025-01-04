@@ -35,6 +35,7 @@ int main() {
     while (1) {
         
         printf("State: %d\n", state);
+        printf("-----------------------------------\n");
         new_state = asm_run(state);
         state = new_state;
 

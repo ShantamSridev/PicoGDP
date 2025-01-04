@@ -20,11 +20,12 @@ bool reserved_addr(uint8_t addr) {
 }
 
 void i2c_scan(i2c_inst_t *i2c, uint8_t *buf){
+        int count = 0;
         for (int addr = 0; addr < (1 << 7); ++addr) {
 
             // Skip over any reserved addresses.
             int ret=0;
-            int count = 0;
+            
             uint8_t rxdata;
             //printf("Scanning address 0x%02x\n", addr);
             if (reserved_addr(addr)){
@@ -33,7 +34,7 @@ void i2c_scan(i2c_inst_t *i2c, uint8_t *buf){
             else
                 ret = i2c_read_blocking(i2c, addr, &rxdata, 1, false);
             if (ret>0){
-                //printf("Found device at 0x%02x\n", addr);
+                printf("Found device at 0x%02x\n", addr);
                 //Need to input into the buffer
                 buf[count] = addr;
                 //printf("Buffer: %d\n", buf[count]);

@@ -33,6 +33,15 @@ bool scan_buf_empty(uint8_t *scan_buf);
  */
 bool address_exists(uint8_t address);
 
+/*! \brief Check if address exists in scan buffer
+*  \ingroup asm.h
+*
+* \param scan_buf Pointer to scan buffer to check
+* \param address Address to check for
+* \return true if address exists, false otherwise
+*/
+bool address_exists_scan_buf(uint8_t *scan_buf, uint8_t address);
+
 /*! \brief Delete address from memory buffer if not in scan buffer
  *  \ingroup asm.h
  *
@@ -47,5 +56,19 @@ bool mem_address_delete(uint8_t *scan_buf);
  * \return Number of devices in the memory buffer
  */
 int device_count();
+
+/*! \brief Zero out the memory buffer
+ *  \ingroup asm.h
+ */
+void mem_buf_zero();
+
+/*! \brief Shift all columns left to remove the deleted address
+ *  \ingroup asm.h
+ *
+ * \param i Index of the column to shift
+ */
+void column_shift(int i);
+
+
 
 #endif

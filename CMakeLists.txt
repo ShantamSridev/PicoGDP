@@ -42,6 +42,7 @@ i2c.cpp
 led.cpp
 asm.cpp
 shared_buf.cpp
+algorithm.cpp
 )
 
 pico_set_program_name(${PROJECT} "PicoI2CTest")
