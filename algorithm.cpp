@@ -86,7 +86,8 @@ int check_short_circuit(std::vector<std::vector<int>> &circuits) {
     return -1; // No short circuit found
 }
 
-void enable_circuits(std::vector<std::vector<int>> &circuits) {
+bool enable_circuits(std::vector<std::vector<int>> &circuits) {
+    bool circuit_live = false;
     for (size_t circuit_idx = 0; circuit_idx < circuits.size(); circuit_idx++) {
         bool polarisation_found = false;
         for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
@@ -112,12 +113,14 @@ void enable_circuits(std::vector<std::vector<int>> &circuits) {
                         write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
                         mem_buf.write(ADD_LIVE_STATE, j, FLOW_BLUE);
                         pos_neighbour = module_addr;
+                        circuit_live = true;
                         break;
                     }
                 }
             }
         }
     }
+    return circuit_live;
 }
 
 bool check_active_state(uint8_t address) {

@@ -54,8 +54,7 @@ int check_short_circuit(std::vector<std::vector<int>> &circuits);
  *  \ingroup algorithm.h
  *
  * \param circuits Reference to circuits
- * \return Number of circuits live
  */
-uint8_t enable_circuits(std::vector<std::vector<int>> &circuits);
+bool enable_circuits(std::vector<std::vector<int>> &circuits);
 
 #endif

@@ -4,7 +4,6 @@
 #include "algorithm.h"
 
 extern SharedBuffer mem_buf;
-bool circuit_live = false;
 int counter;
 std::vector<std::vector<int>> circuits;
 
