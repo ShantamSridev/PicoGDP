@@ -88,14 +88,31 @@ int check_short_circuit(std::vector<std::vector<int>> &circuits) {
 
 void enable_circuits(std::vector<std::vector<int>> &circuits) {
     for (size_t circuit_idx = 0; circuit_idx < circuits.size(); circuit_idx++) {
+        bool polarisation_found = false;
         for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
             uint8_t module_addr = circuits[circuit_idx][i];
             //find address in mem_buf
             for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
                 if (mem_buf.read(0, j) == module_addr) {
-                    if ( mem_buf.read(ADD_TYPE, j) > 6) {
-
+                    if ( mem_buf.read(ADD_TYPE, j) > 8) {
+                        //chekc polarisation
                         mem_buf.write(ADD_LIVE_STATE, j, 1);
+                    }
+                }
+            }
+        }
+        if (!polarisation_found) {
+            uint8_t pos_neighbour = 1;
+            for (size_t i = 1; i < circuits[circuit_idx].size() - 1; i++) {
+                uint8_t module_addr = circuits[circuit_idx][i];
+                //find address in mem_buf
+                for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
+                    if (mem_buf.read(0, j) == module_addr) {
+                        write_positive_neighbour(I2CINSTANCE, module_addr, pos_neighbour);
+                        write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
+                        mem_buf.write(ADD_LIVE_STATE, j, FLOW_BLUE);
+                        pos_neighbour = module_addr;
+                        break;
                     }
                 }
             }

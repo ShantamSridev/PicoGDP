@@ -56,6 +56,15 @@ uint8_t read_type(i2c_inst_t *i2c, uint8_t addr);
  */
 void read_neighbours(i2c_inst_t *i2c, uint8_t addr, uint8_t *buf);
 
+/*! \brief  Write to positive neighbour of device at address
+ *  \ingroup i2c.h
+ *
+ * \param i2c Either \ref i2c0 or \ref i2c1
+ * \param addr 7-bit address of device to write to
+ * \param data Data to write
+ */
+void write_positive_neighbour(i2c_inst_t *i2c, uint8_t addr, uint8_t data);
+
 /*! \brief  Read active state of device at address
  *  \ingroup i2c.h
  *
@@ -63,6 +72,15 @@ void read_neighbours(i2c_inst_t *i2c, uint8_t addr, uint8_t *buf);
  * \param addr 7-bit address of device to read from
  * \return Active state of device
  */
-uint8_t read_active(i2c_inst_t *i2c, uint8_t addr);
+uint8_t read_active_state(i2c_inst_t *i2c, uint8_t addr);
+
+/*! \brief  Write to live state of device at address
+ *  \ingroup i2c.h
+ *
+ * \param i2c Either \ref i2c0 or \ref i2c1
+ * \param addr 7-bit address of device to write to
+ * \param data Data to write
+ */
+void write_live_state(i2c_inst_t *i2c, uint8_t addr, uint8_t data);
 
 #endif

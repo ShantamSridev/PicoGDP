@@ -40,14 +40,8 @@ uint8_t asm_run(uint8_t state){
             bool deleted = mem_address_delete(scan_buf);
             if(deleted == true){
                 printf("Deleted\n");
-                if (circuit_live){
-                    change_state = STATE_CHANGE_LIVE;
-                }
-                else{
-                    change_state = STATE_CHANGE;
-                }
+                change_state = STATE_CHANGE;
             }
-
 
             //ADD
             for (int i = 0; i < MEM_BUF_SIZE; i++){
@@ -56,13 +50,7 @@ uint8_t asm_run(uint8_t state){
                     break;
                 }
                 if(!address_exists(address)){
-                    if (circuit_live){
-                        change_state = STATE_CHANGE_LIVE;
-                    }
-                    else{
-                        change_state = STATE_CHANGE;
-                    }
-
+                    change_state = STATE_CHANGE;
                     int j = 0;
                     while(mem_buf.read(0, j) != 0){
                         j++;
@@ -91,7 +79,6 @@ uint8_t asm_run(uint8_t state){
         }
 
         case STATE_CHANGE:
-
             find_neighbours();
 
             // if (counter < 8){
@@ -104,6 +91,7 @@ uint8_t asm_run(uint8_t state){
 
             //check if any circuits have been formed?
             if (circuits.empty()){
+                //CLEAR ALL LIGHTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 return STATE_SCAN;
             }
 
@@ -112,19 +100,18 @@ uint8_t asm_run(uint8_t state){
             //COMPARE WITH FAULT PIN IF ATCUALLY A SHORT CIRCUIT
             if (short_circuit_index != -1) {
                 printf("Short circuit found at index: %d\n", short_circuit_index);
+                //CLEAR ALL LIGHTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 //LIGHT UP RED LED ON THAT CIRCUIT
             }
             else{
-                enable_circuits(circuits);//runs per live loop checking for polarisation
+                //RUN A CHECK ON ALL MEM_BUF MODULES WHICH ARE LIT UP AND CHECK IF THEY EXIST IN CIRCUITS
+                //IF THEY DON'T, CLEAR THE LIGHT%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                enable_circuits(circuits);
             }
             return STATE_SCAN;
 
-
-        case STATE_CHANGE_LIVE:
-            return STATE_SCAN;
-
         case STATE_NO_CHANGE:
-            //RUN ACTIVE CHECK FOR SWITCH AND SENSOR to update led live
+            //RUN ACTIVE CHECK FOR SWITCH AND SENSOR to update led live%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             //Run 'circuits' in loop to find active modules, and their active states.
             enable_circuits(circuits);
             return STATE_SCAN;

@@ -92,9 +92,19 @@ void read_neighbours(i2c_inst_t *i2c, uint8_t addr, uint8_t *buf) {
     //4 neighbours are found at buf[0], buf[1], buf[2], buf[3]
 }
 
-uint8_t read_active(i2c_inst_t *i2c, uint8_t addr) {
+//write to positive neighbour
+void write_positive_neighbour(i2c_inst_t *i2c, uint8_t addr, uint8_t data) {
+    i2c_write(i2c, addr, I2C_ADD_POS_NEIGHBOUR, data, WRITELENGTH);
+}
+
+uint8_t read_active_state(i2c_inst_t *i2c, uint8_t addr) {
     uint8_t buf[2];
     i2c_read(i2c, addr, I2C_ADD_ACTIVE, buf, READLENGTH);
-    //2 active states are found at buf[0], buf[1]
     return buf[0];
 }
+
+void write_live_state(i2c_inst_t *i2c, uint8_t addr, uint8_t data) {
+    i2c_write(i2c, addr, I2C_ADD_LIVE_STATE, data, WRITELENGTH);
+}
+
+

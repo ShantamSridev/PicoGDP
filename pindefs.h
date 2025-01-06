@@ -52,7 +52,6 @@
 #define STATE_SCAN 0
 #define STATE_CHANGE 1
 #define STATE_NO_CHANGE 2
-#define STATE_CHANGE_LIVE 3
 
 
 //DEVICE TYPES
@@ -61,18 +60,22 @@
 #define WIRE_TYPE 3
 #define MOTOR_TYPE 4
 #define VAR_RESISTOR_TYPE 5
-#define LED_TYPE 6
+#define LED_TYPE 8
 #define BUTTON_TYPE 7
-#define BUZZER_TYPE 8
-#define SENSOR_TYPE 9
+#define BUZZER_TYPE 9
+#define SENSOR_TYPE 6
 
 //I2C ADDRESSES
 #define I2C_ADD_ADDRESS 0
-#define I2C_ADD_TYPE 4
-#define I2C_ADD_NEIGHBOUR 8
-#define I2C_ADD_POS_NEIGHBOUR 12
-#define I2C_ADD_ACTIVE 16  // polarisation, switch state
-#define I2C_ADD_LIVE_STATE 20 
+#define I2C_ADD_TYPE 4 // Only a read
+#define I2C_ADD_NEIGHBOUR 8 
+#define I2C_ADD_ACTIVE 12  // polarisation, switch state (Only a read)
+#define I2C_ADD_LIVE_STATE 16 // 1 if live, 0 if not, 2 if red (Only a Write)
+#define I2C_ADD_POS_NEIGHBOUR 20 // Only a Write
+
+//I2C ADDRESSES FOR LIGHTS
+#define BLINK_RED 2
+#define FLOW_BLUE 1
 
 #define ADD_BATTERY 1
 
