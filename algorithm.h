@@ -57,4 +57,11 @@ int check_short_circuit(std::vector<std::vector<int>> &circuits);
  */
 bool enable_circuits(std::vector<std::vector<int>> &circuits);
 
+/*! \brief Check switches
+ *  \ingroup algorithm.h
+ *
+ * \param circuits Reference to circuits
+ */
+void check_switches(std::vector<std::vector<int>> &circuits);
+
 #endif

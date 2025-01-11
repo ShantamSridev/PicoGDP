@@ -53,7 +53,6 @@
 #define STATE_CHANGE 1
 #define STATE_NO_CHANGE 2
 
-
 //DEVICE TYPES
 #define BATT_TYPE 1
 #define NODE_TYPE 2
@@ -69,7 +68,7 @@
 #define I2C_ADD_ADDRESS 0
 #define I2C_ADD_TYPE 4 // Only a read
 #define I2C_ADD_NEIGHBOUR 8 
-#define I2C_ADD_ACTIVE 12  // polarisation, switch state (Only a read)
+#define I2C_ADD_ACTIVE 12  // polarisation, switch state (Only a read) (0 if fine, 1 if fault) (0 if not pressed, 1 if pressed)
 #define I2C_ADD_LIVE_STATE 16 // 1 if live, 0 if not, 2 if red (Only a Write)
 #define I2C_ADD_POS_NEIGHBOUR 20 // Only a Write
 
@@ -78,11 +77,5 @@
 #define FLOW_BLUE 1
 
 #define ADD_BATTERY 1
-
-// ERROR CODES
-// 10 i2c_read
-// 11 i2c_read
-// 12 i2c_write
-// 13 i2c_scan
 
 #endif

@@ -45,7 +45,7 @@ bool address_exists_scan_buf(uint8_t *scan_buf, uint8_t address);
 /*! \brief Delete address from memory buffer if not in scan buffer
  *  \ingroup asm.h
  *
- * \param scan_buf Pointer to scan buffer to compare against
+ * \param scan_buf Pointer to scan buffer to compare againsts
  * \return true if address was deleted, false otherwise
  */
 bool mem_address_delete(uint8_t *scan_buf);
@@ -68,7 +68,6 @@ void mem_buf_zero();
  * \param i Index of the column to shift
  */
 void column_shift(int i);
-
 
 
 #endif

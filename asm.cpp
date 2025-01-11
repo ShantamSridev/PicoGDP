@@ -78,6 +78,7 @@ uint8_t asm_run(uint8_t state){
         }
 
         case STATE_CHANGE:
+        {
             find_neighbours();
 
             // if (counter < 8){
@@ -108,14 +109,18 @@ uint8_t asm_run(uint8_t state){
                 enable_circuits(circuits);
             }
             return STATE_SCAN;
+        }
 
         case STATE_NO_CHANGE:
-            //RUN ACTIVE CHECK FOR SWITCH AND SENSOR to update led live%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            //Run 'circuits' in loop to find active modules, and their active states.
-            enable_circuits(circuits);
+        {
+            check_switches(circuits);
             return STATE_SCAN;
+        }
+
         default:
-            return change_state;
+        {
+            return STATE_SCAN;
+        }
     }
     return change_state;
 }

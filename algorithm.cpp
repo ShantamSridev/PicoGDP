@@ -123,11 +123,33 @@ bool enable_circuits(std::vector<std::vector<int>> &circuits) {
     return circuit_live;
 }
 
-bool check_active_state(uint8_t address) {
-    uint8_t module_type = mem_buf.read(ADD_TYPE, address);
-    if (module_type == BUTTON_TYPE || module_type == SENSOR_TYPE) {
-        return true;
+
+void check_switches(std::vector<std::vector<int>> &circuits) {
+    for (size_t circuit_idx = 0; circuit_idx < circuits.size(); circuit_idx++) {
+        bool loop_on = false;
+        for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
+            uint8_t module_addr = circuits[circuit_idx][i];
+            for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
+                if (mem_buf.read(0, j) == 0){
+                    break;
+                }   
+                if ((mem_buf.read(0, j) == module_addr)&& (mem_buf.read(ADD_TYPE, j) == BUTTON_TYPE || mem_buf.read(ADD_TYPE, j) == SENSOR_TYPE)){
+                    if (mem_buf.read(ADD_ACTIVE, j) == 1){
+                        loop_on = true;
+                    }
+                    else{
+                        loop_on = false;
+                    }
+                }
+            }
+        }
+        if (loop_on){
+            for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
+                uint8_t module_addr = circuits[circuit_idx][i];
+                write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
+                mem_buf.write(ADD_LIVE_STATE, module_addr, FLOW_BLUE);
+            }
+        }
     }
-    return false;
 }
 
