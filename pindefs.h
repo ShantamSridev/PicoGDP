@@ -16,24 +16,27 @@
 #include "hardware/i2c.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
+#include "hardware/pwm.h"
 
 
 // I2C
-#define SDA_PIN  16  // GPIO16 as SDA
-#define SCL_PIN  17  // GPIO17 as SCL
+#define SDA_PIN  4  // GPIO16 as SDA
+#define SCL_PIN  5  // GPIO17 as SCL
 #define I2CINSTANCE i2c0
 #define BAUD_RATE 100000
 #define WRITELENGTH 2
 #define READLENGTH 4
 
-#define MEM_BUF_SIZE 128
+#define MEM_BUF_SIZE 10
 #define MEM_BUF_ROW_SIZE 9
 
 //LED pins
 #define LED_1_B 10
-#define LED_1_R 11
-#define LED_2_B 12
-#define LED_2_R 13
+#define LED_1_R 12
+#define LED_1_G 11
+#define LED_2_B 13
+#define LED_2_R 15
+#define LED_2_G 14
 
 //TOP pins
 #define TOP_ENABLE 6
@@ -75,6 +78,7 @@
 //I2C ADDRESSES FOR LIGHTS
 #define BLINK_RED 2
 #define FLOW_BLUE 1
+#define LED_OFF 0
 
 #define ADD_BATTERY 1
 

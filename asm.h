@@ -69,5 +69,9 @@ void mem_buf_zero();
  */
 void column_shift(int i);
 
+/*! \brief Find the neighbours of each device
+ *  \ingroup asm.h
+ */
+void find_neighbours();
 
 #endif

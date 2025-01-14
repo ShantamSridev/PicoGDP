@@ -2,6 +2,7 @@
 #include "i2c.h"
 #include "shared_buf.h"
 #include "algorithm.h"
+#include "pindefs.h"
 
 extern SharedBuffer mem_buf;
 int counter;
@@ -10,34 +11,45 @@ std::vector<std::vector<int>> circuits;
 uint8_t asm_run(uint8_t state){
     uint8_t change_state = STATE_SCAN;
     uint8_t scan_buf[MEM_BUF_SIZE];
+    bool deleted = false;
+    int short_circuit_index;
     
+
     for (int i = 0; i < MEM_BUF_SIZE; i++) {
         scan_buf[i] = 0;
     }
-    
     //RUN LOCAL HERE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //add ADD_BATTERY to mem_buf with subsequent data
+
+
     mem_buf.write(0, 0, ADD_BATTERY);
     mem_buf.write(ADD_TYPE, 0, BATT_TYPE);
     mem_buf.write(ADD_LIVE_STATE, 0, 0);
+    mem_buf.write(ADD_POS_NEIGHBOUR, 0, 10);
+    mem_buf.write(ADD_POS_NEIGHBOUR + 1, 0, 16);
 
-    switch (state){
-        case STATE_SCAN:
-        {
 
+    if(state == STATE_SCAN){
             i2c_scan(I2CINSTANCE, scan_buf);
+
+            //print scan_buf
+            // printf("Scan Buffer: \n");
+            // for (int i = 0; i < MEM_BUF_SIZE; i++) {
+            //     if(scan_buf[i] == 0){
+            //         break;
+            //     }
+            //     printf(" %d\n", scan_buf[i]);
+            // }
 
             //EMPTY
             if (scan_buf_empty(scan_buf)){
                 printf("SCAN BUFFER IS EMPTY\n");
                 mem_buf_zero();
-                change_state = STATE_SCAN;
-                return change_state;
+                return STATE_SCAN;
             }
             
-            //REMOVE
-            bool deleted = mem_address_delete(scan_buf);
-            if(deleted == true){
+            deleted = mem_address_delete(scan_buf);
+            if(deleted){
                 printf("Deleted\n");
                 change_state = STATE_CHANGE;
             }
@@ -62,23 +74,22 @@ uint8_t asm_run(uint8_t state){
             counter = device_count();
             printf("Device Count: %d\n", counter);
             
-            // //print out the mem_buf
-            // printf("Mem Buffer: \n");
-            // for (int i = 0; i < MEM_BUF_SIZE; i++){
-            //     if(mem_buf.read(0, i) == 0){
-            //         break;
-            //     printf(" %d\n", mem_buf.read(0, i));
-            // }
+            //print out the mem_buf
+            printf("Mem Buffer: \n");
+            for (int i = 0; i < MEM_BUF_SIZE; i++){
+                if(mem_buf.read(0, i) == 0){
+                    break;
+                }
+                printf(" %d\n", mem_buf.read(0, i));
+            }
             
             if(change_state != STATE_CHANGE){
                 change_state = STATE_NO_CHANGE;
             }
 
             return change_state;
-        }
-
-        case STATE_CHANGE:
-        {
+    }
+    else if(state == STATE_CHANGE){
             find_neighbours();
 
             // if (counter < 8){
@@ -88,10 +99,20 @@ uint8_t asm_run(uint8_t state){
             //RUN ALGORITHM
             circuits.clear();
             run_algorithm(circuits);
+            //print circuits
+            printf("Circuits: \n");
+            for (size_t i = 0; i < circuits.size(); i++) {
+                printf("Circuit %d: \n", i);
+                for (size_t j = 0; j < circuits[i].size(); j++) {
+                    printf(" %d ", circuits[i][j]);
+                }
+                printf("\n");
+            }
 
             //check if any circuits have been formed?
             if (circuits.empty()){
-                //CLEAR ALL LIGHTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                printf("Circuits empty\n");
+                clear_all_lights();
                 return STATE_SCAN;
             }
 
@@ -100,34 +121,32 @@ uint8_t asm_run(uint8_t state){
             //COMPARE WITH FAULT PIN IF ATCUALLY A SHORT CIRCUIT
             if (short_circuit_index != -1) {
                 printf("Short circuit found at index: %d\n", short_circuit_index);
-                //CLEAR ALL LIGHTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                //LIGHT UP RED LED ON THAT CIRCUIT
+                clear_all_lights();
+                light_up_red(circuits[short_circuit_index]);
             }
             else{
                 //RUN A CHECK ON ALL MEM_BUF MODULES WHICH ARE LIT UP AND CHECK IF THEY EXIST IN CIRCUITS
-                //IF THEY DON'T, CLEAR THE LIGHT%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                //IF THEY DON'T, CLEAR THE LIGHT
+                printf("Clearing live modules\n");
+                clear_live_modules(circuits);
+                printf("Enabling circuits\n");
                 enable_circuits(circuits);
             }
             return STATE_SCAN;
-        }
+    }
 
-        case STATE_NO_CHANGE:
-        {
+    else if(state == STATE_NO_CHANGE){
+            if (circuits.empty()){
+                return STATE_SCAN;
+            }
             check_switches(circuits);
             return STATE_SCAN;
-        }
-
-        default:
-        {
-            return STATE_SCAN;
-        }
     }
-    return change_state;
+    else{
+        return 0;
+    }
+    return STATE_SCAN;
 }
-
-
-
-
 
 
 bool scan_buf_empty(uint8_t *scan_buf) {
@@ -140,7 +159,7 @@ bool scan_buf_empty(uint8_t *scan_buf) {
 }
 
 bool address_exists(uint8_t address) {
-    for (size_t i = 0; i < MEM_BUF_SIZE; i++) {
+    for (size_t i = 0; i < MEM_BUF_SIZE; i++) { 
         if (mem_buf.read(0, i) ==  address) {
             return true; // Address found
         }
@@ -166,7 +185,7 @@ bool address_exists_scan_buf(uint8_t *scan_buf, uint8_t address) {
 
 bool mem_address_delete(uint8_t *scan_buf) {
     bool del = false;
-    for (size_t i = 0; i < MEM_BUF_SIZE; i++) {
+    for (size_t i = 1; i < MEM_BUF_SIZE; i++) { // 1 to ignore the battery module
         bool found = false;
         if(mem_buf.read(0,i) == 0){
             return del;
@@ -181,7 +200,7 @@ bool mem_address_delete(uint8_t *scan_buf) {
         // Address not found in scan_buf, delete it from mem_buf
         if (!found) {
             printf("ADDRESS NOT FOUND: %d\n", mem_buf.read(0, i));
-            for(int k = 0; k < MEM_BUF_SIZE; k++){
+            for(int k = 1; k < MEM_BUF_SIZE; k++){
                 if(mem_buf.read(0,k) == 0){
                     break;
                 }
@@ -240,19 +259,21 @@ void column_shift(int i){
 
 void find_neighbours() {
 
-    for (int i = 1; i < MEM_BUF_SIZE; i++){
+    for (int i = 1; i < MEM_BUF_SIZE; i++){ // 1 to ignore the battery module
         if (mem_buf.read(0, i) == 0){
             break;
         }
-        if(mem_buf.read(ADD_NEIGHBOUR, i) == 0){
-            uint8_t buf[4];
-            read_neighbours(I2CINSTANCE, mem_buf.read(0, i), buf);
-            mem_buf.write(ADD_POS_NEIGHBOUR, i, buf[0]);
-            mem_buf.write(ADD_POS_NEIGHBOUR + 1, i, buf[1]);
-            mem_buf.write(ADD_POS_NEIGHBOUR + 2, i, buf[2]);
-            mem_buf.write(ADD_POS_NEIGHBOUR + 3, i, buf[3]);
-            mem_buf.write(ADD_NEIGHBOUR, i, 1);
-            mem_buf.write(ADD_TYPE, i, read_type(I2CINSTANCE, mem_buf.read(0, i)));
-        }
+        printf("Finding neighbours for module: %d\n", mem_buf.read(0, i));
+        uint8_t buf[4];
+        read_neighbours(I2CINSTANCE, mem_buf.read(0, i), buf);
+        mem_buf.write(ADD_POS_NEIGHBOUR, i, buf[0]);
+        mem_buf.write(ADD_POS_NEIGHBOUR + 1, i, buf[1]);
+        mem_buf.write(ADD_POS_NEIGHBOUR + 2, i, buf[2]);
+        mem_buf.write(ADD_POS_NEIGHBOUR + 3, i, buf[3]);
+        printf("Neighbours: %d, %d, %d, %d\n", buf[0], buf[1], buf[2], buf[3]);
+        mem_buf.write(ADD_NEIGHBOUR, i, 1);
+        uint8_t module_type = read_type(I2CINSTANCE, mem_buf.read(0, i));
+        printf("Module type: %d\n", module_type);
+        mem_buf.write(ADD_TYPE, i, module_type);
     }
 }

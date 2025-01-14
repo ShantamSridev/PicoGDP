@@ -66,13 +66,22 @@ int check_short_circuit(std::vector<std::vector<int>> &circuits) {
         // Check each module in the circuit except last (duplicate of first)
         for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
             uint8_t module_addr = circuits[circuit_idx][i];
-            uint8_t module_type = mem_buf.read(ADD_TYPE, module_addr);
-            
-            // Check if module is not a battery, wire or node
-            if (module_type == MOTOR_TYPE || 
-                module_type == LED_TYPE || 
-                module_type == BUZZER_TYPE) {
-                found_load_module = true;
+            for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
+                if (mem_buf.read(0, j) == module_addr) {
+                    uint8_t module_type = mem_buf.read(ADD_TYPE, j);
+                    printf("Module type: %d\n", module_type);
+                    
+                    // Check if module is not a battery, wire or node
+                    if (module_type == MOTOR_TYPE || 
+                        module_type == LED_TYPE || 
+                        module_type == BUZZER_TYPE) {
+                        printf("Found load module: %d\n", module_addr);
+                        found_load_module = true;
+                    }
+                    break;
+                }
+            }
+            if(found_load_module){
                 break;
             }
         }
@@ -90,13 +99,16 @@ bool enable_circuits(std::vector<std::vector<int>> &circuits) {
     bool circuit_live = false;
     for (size_t circuit_idx = 0; circuit_idx < circuits.size(); circuit_idx++) {
         bool polarisation_found = false;
+        uint8_t prev_module = 0;
         for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
             uint8_t module_addr = circuits[circuit_idx][i];
             //find address in mem_buf
             for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
                 if (mem_buf.read(0, j) == module_addr) {
                     if ( mem_buf.read(ADD_TYPE, j) > 8) {
-                        //chekc polarisation
+                        //chekc polarisation#######################################
+                        //give positive neighbour and then read polarisation state
+
                         mem_buf.write(ADD_LIVE_STATE, j, 1);
                     }
                 }
@@ -153,3 +165,56 @@ void check_switches(std::vector<std::vector<int>> &circuits) {
     }
 }
 
+void light_up_red(std::vector<int> &circuit) {
+    for (size_t i = 0; i < circuit.size() - 1; i++) {
+        uint8_t module_addr = circuit[i];
+        write_live_state(I2CINSTANCE, module_addr, BLINK_RED);
+        mem_buf.write(ADD_LIVE_STATE, i, BLINK_RED);
+    }
+}
+
+void clear_all_lights() {
+    for (size_t i = 0; i < MEM_BUF_SIZE; i++) {
+        if (mem_buf.read(0, i) == 0){
+            break;
+        }
+        printf("Clearing: %d\n", mem_buf.read(0, i));
+        if (mem_buf.read(0, i) == ADD_BATTERY){
+            led_off(LED_1_B);
+            led_off(LED_2_B);
+        }
+        else{
+            write_live_state(I2CINSTANCE, mem_buf.read(0, i), LED_OFF);
+            mem_buf.write(ADD_LIVE_STATE, i, LED_OFF);
+        }
+    }
+}
+
+void clear_live_modules(std::vector<std::vector<int>> &circuits) {
+    for (size_t i = 0; i < MEM_BUF_SIZE; i++) {
+        bool found = false;
+        if (mem_buf.read(0, i) == 0){
+            break;
+        }
+        if (mem_buf.read(ADD_LIVE_STATE, i) != 0){
+            //find address in circuits
+            for (size_t j = 0; j < circuits.size(); j++) {
+                if (std::find(circuits[j].begin(), circuits[j].end(), mem_buf.read(0, i)) != circuits[j].end()) {
+                    //address found in circuit
+                    found = true;
+                    break;
+                }
+            }
+            if (!found){
+                if (mem_buf.read(0, i) == ADD_BATTERY){ 
+                    led_off(LED_1_B);
+                    led_off(LED_2_B);
+                }
+                else{
+                    write_live_state(I2CINSTANCE, mem_buf.read(0, i), LED_OFF);
+                    mem_buf.write(ADD_LIVE_STATE, i, LED_OFF);
+                }
+            }
+        }
+    }
+}

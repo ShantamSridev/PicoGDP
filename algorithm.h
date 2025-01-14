@@ -3,6 +3,7 @@
 
 #include "pindefs.h"
 #include "i2c.h"
+#include "led.h"
 #include "shared_buf.h"
 
 extern SharedBuffer mem_buf;  // Declare external reference to mem_buf
@@ -63,5 +64,26 @@ bool enable_circuits(std::vector<std::vector<int>> &circuits);
  * \param circuits Reference to circuits
  */
 void check_switches(std::vector<std::vector<int>> &circuits);
+
+/*! \brief Light up red
+ *  \ingroup algorithm.h
+ *
+ * \param circuit Reference to circuit
+ */
+void light_up_red(std::vector<int> &circuit);
+
+/*! \brief Clear all lights
+ *  \ingroup algorithm.h
+ *
+ * \param circuit Reference to circuit
+ */
+void clear_all_lights();
+
+/*! \brief Clear live modules
+ *  \ingroup algorithm.h
+ *
+ * \param circuits Reference to circuits
+ */
+void clear_live_modules(std::vector<std::vector<int>> &circuits);
 
 #endif

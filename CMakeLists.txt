@@ -69,7 +69,10 @@ target_include_directories(${PROJECT} PRIVATE
 target_link_libraries(${PROJECT} 
         hardware_i2c
         hardware_pio
+        hardware_pwm
+        hardware_gpio
         pico_multicore
+        pico_stdlib
         )
 
 pico_add_extra_outputs(${PROJECT})

@@ -1,6 +1,9 @@
 #include "shared_buf.h"
 #include <stdexcept>
 
+// Global mem_buf definition
+//SharedBuffer mem_buf;
+
 SharedBuffer::SharedBuffer() {
     for (size_t i = 0; i < MEM_BUF_SIZE; ++i) {
         for (size_t j = 0; j < MEM_BUF_ROW_SIZE; ++j) {
