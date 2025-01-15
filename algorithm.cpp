@@ -91,7 +91,6 @@ int check_short_circuit(std::vector<std::vector<int>> &circuits) {
             return circuit_idx;
         }
     }
-    
     return -1; // No short circuit found
 }
 
@@ -103,30 +102,50 @@ bool enable_circuits(std::vector<std::vector<int>> &circuits) {
         for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
             uint8_t module_addr = circuits[circuit_idx][i];
             //find address in mem_buf
-            for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
-                if (mem_buf.read(0, j) == module_addr) {
-                    if ( mem_buf.read(ADD_TYPE, j) > 8) {
-                        //chekc polarisation#######################################
-                        //give positive neighbour and then read polarisation state
+            if (module_addr != 1){
+                for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
+                    if (mem_buf.read(0, j) == module_addr) {
+                        if ( mem_buf.read(ADD_TYPE, j) >= 8) {
+                            //chekc polarisation#######################################
+                            //give positive neighbour and then read polarisation state
+                            printf("Writing positive neighbour: %d\n", prev_module);
+                            write_positive_neighbour(I2CINSTANCE, module_addr, prev_module);
+                            printf("Reading polarisation for: %d\n", module_addr);
+                            uint8_t polarisation = read_active_state(I2CINSTANCE, module_addr);
+                            if (polarisation == 1){
+                                printf("Polarisation found for: %d\n", module_addr);
+                                polarisation_found = true;
 
-                        mem_buf.write(ADD_LIVE_STATE, j, 1);
+                                mem_buf.write(ADD_LIVE_STATE, j, BLINK_RED);
+                                write_live_state(I2CINSTANCE, module_addr, BLINK_RED);
+                            }
+                        }
                     }
                 }
             }
+            prev_module = module_addr;
+            
         }
         if (!polarisation_found) {
-            uint8_t pos_neighbour = 1;
-            for (size_t i = 1; i < circuits[circuit_idx].size() - 1; i++) {
-                uint8_t module_addr = circuits[circuit_idx][i];
-                //find address in mem_buf
-                for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
-                    if (mem_buf.read(0, j) == module_addr) {
-                        write_positive_neighbour(I2CINSTANCE, module_addr, pos_neighbour);
-                        write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
-                        mem_buf.write(ADD_LIVE_STATE, j, FLOW_BLUE);
-                        pos_neighbour = module_addr;
-                        circuit_live = true;
-                        break;
+            if (switch_check(circuits[circuit_idx])){
+                printf("Polarisation not found\n");
+                uint8_t pos_neighbour = 1;
+                for (size_t i = 1; i < circuits[circuit_idx].size() - 1; i++) {
+                    uint8_t module_addr = circuits[circuit_idx][i];
+                    //find address in mem_buf
+                    for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
+                        if (mem_buf.read(0, j) == module_addr) {
+                            write_positive_neighbour(I2CINSTANCE, module_addr, pos_neighbour);
+                            if (mem_buf.read(ADD_TYPE, j) == NODE_TYPE){
+                                printf("Writing negative neighbour: %d\n", circuits[circuit_idx][i+1]);
+                                write_negative_neighbour(I2CINSTANCE, module_addr, circuits[circuit_idx][i+1]);
+                            }
+                            printf("Writing live state: %d\n", module_addr);
+                            write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
+                            pos_neighbour = module_addr;
+                            circuit_live = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -146,11 +165,16 @@ void check_switches(std::vector<std::vector<int>> &circuits) {
                     break;
                 }   
                 if ((mem_buf.read(0, j) == module_addr)&& (mem_buf.read(ADD_TYPE, j) == BUTTON_TYPE || mem_buf.read(ADD_TYPE, j) == SENSOR_TYPE)){
-                    if (mem_buf.read(ADD_ACTIVE, j) == 1){
+                    printf("Reading active state for: %d\n", module_addr);
+                    uint8_t active_state = read_active_state(I2CINSTANCE, module_addr);
+                    mem_buf.write(ADD_ACTIVE, j, active_state);
+                    if (active_state == 1){
                         loop_on = true;
+                        printf("Switch on\n");
                     }
                     else{
                         loop_on = false;
+                        printf("Switch off\n");
                     }
                 }
             }
@@ -158,18 +182,74 @@ void check_switches(std::vector<std::vector<int>> &circuits) {
         if (loop_on){
             for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
                 uint8_t module_addr = circuits[circuit_idx][i];
-                write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
-                mem_buf.write(ADD_LIVE_STATE, module_addr, FLOW_BLUE);
+                if (module_addr == ADD_BATTERY){
+                    led_on(LED_1_B);
+                    led_on(LED_2_B);
+                }
+                else{
+                    printf("Writing ON live state for: %d\n", module_addr);
+                    write_live_state(I2CINSTANCE, module_addr, FLOW_BLUE);
+                    mem_buf.write(ADD_LIVE_STATE, module_addr, FLOW_BLUE);
+                }
+            }
+        }
+        else{
+            for (size_t i = 0; i < circuits[circuit_idx].size() - 1; i++) {
+                uint8_t module_addr = circuits[circuit_idx][i];
+                if (module_addr == ADD_BATTERY){
+                    led_off(LED_1_B);
+                    led_off(LED_1_R);
+                    led_off(LED_2_B);
+                    led_off(LED_2_R);
+                }
+                else{
+                    printf("Writing OFF live state for: %d\n", module_addr);
+                    write_live_state(I2CINSTANCE, module_addr, LED_OFF);
+                    mem_buf.write(ADD_LIVE_STATE, module_addr, LED_OFF);
+                }
             }
         }
     }
 }
 
+bool switch_check(std::vector<int> &circuit) {
+    bool loop_on = false;
+    for (size_t i = 0; i < circuit.size() - 1; i++) {
+        uint8_t module_addr = circuit[i];
+        for (size_t j = 0; j < MEM_BUF_SIZE; j++) {
+            if (mem_buf.read(0, j) == 0){
+                break;
+            }   
+            if ((mem_buf.read(0, j) == module_addr)&& (mem_buf.read(ADD_TYPE, j) == BUTTON_TYPE || mem_buf.read(ADD_TYPE, j) == SENSOR_TYPE)){
+                printf("Reading active state for: %d\n", module_addr);
+                uint8_t active_state = read_active_state(I2CINSTANCE, module_addr);
+                mem_buf.write(ADD_ACTIVE, j, active_state);
+                if (active_state == 1){
+                    printf("Switch on\n");
+                    loop_on = true;
+                }
+                else{
+                    printf("Switch off\n");
+                    loop_on = false;
+                }
+            }
+        }
+    }
+    return loop_on;
+}
+
 void light_up_red(std::vector<int> &circuit) {
     for (size_t i = 0; i < circuit.size() - 1; i++) {
         uint8_t module_addr = circuit[i];
-        write_live_state(I2CINSTANCE, module_addr, BLINK_RED);
-        mem_buf.write(ADD_LIVE_STATE, i, BLINK_RED);
+        printf("Lighting up red: %d\n", module_addr);
+        if (module_addr == ADD_BATTERY){
+            led_on(LED_1_R);
+            led_on(LED_2_R);
+        }
+        else{
+            write_live_state(I2CINSTANCE, module_addr, BLINK_RED);
+            mem_buf.write(ADD_LIVE_STATE, i, BLINK_RED);
+        }
     }
 }
 
@@ -192,6 +272,7 @@ void clear_all_lights() {
 
 void clear_live_modules(std::vector<std::vector<int>> &circuits) {
     for (size_t i = 0; i < MEM_BUF_SIZE; i++) {
+        int p = i;
         bool found = false;
         if (mem_buf.read(0, i) == 0){
             break;
@@ -212,9 +293,19 @@ void clear_live_modules(std::vector<std::vector<int>> &circuits) {
                 }
                 else{
                     write_live_state(I2CINSTANCE, mem_buf.read(0, i), LED_OFF);
-                    mem_buf.write(ADD_LIVE_STATE, i, LED_OFF);
+                    mem_buf.write(ADD_LIVE_STATE, p, LED_OFF);
                 }
             }
+        }
+    }
+}
+
+void orient_circuits(std::vector<std::vector<int>> &circuits) {
+    //check if circuits are oriented correctly
+    //if pos_neighbour is not the second element of the circuit, reverse the circuit
+    for (size_t i = 0; i < circuits.size(); i++) {
+        if (circuits[i][1] != mem_buf.read(ADD_POS_NEIGHBOUR, 0)) {
+            std::reverse(circuits[i].begin(), circuits[i].end());
         }
     }
 }

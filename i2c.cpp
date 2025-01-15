@@ -106,3 +106,7 @@ uint8_t read_active_state(i2c_inst_t *i2c, uint8_t addr) {
 void write_live_state(i2c_inst_t *i2c, uint8_t addr, uint8_t data) {
     i2c_write(i2c, addr, I2C_ADD_LIVE_STATE, data, WRITELENGTH);
 }
+
+void write_negative_neighbour(i2c_inst_t *i2c, uint8_t addr, uint8_t data) {
+    i2c_write(i2c, addr, I2C_ADD_NEG_NEIGHBOUR, data, WRITELENGTH);
+}

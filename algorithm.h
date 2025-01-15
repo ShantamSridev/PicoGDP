@@ -86,4 +86,19 @@ void clear_all_lights();
  */
 void clear_live_modules(std::vector<std::vector<int>> &circuits);
 
+/*! \brief Orient circuits
+ *  \ingroup algorithm.h
+ *
+ * \param circuits Reference to circuits
+ */
+void orient_circuits(std::vector<std::vector<int>> &circuits);
+
+/*! \brief Switch check
+ *  \ingroup algorithm.h
+ *
+ * \param circuit Reference to circuit
+ * \return True if switch is on, false otherwise
+ */
+bool switch_check(std::vector<int> &circuit);
+
 #endif

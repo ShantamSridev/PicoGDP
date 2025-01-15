@@ -7,6 +7,7 @@
 extern SharedBuffer mem_buf;
 int counter;
 std::vector<std::vector<int>> circuits;
+int count;
 
 uint8_t asm_run(uint8_t state){
     uint8_t change_state = STATE_SCAN;
@@ -26,6 +27,7 @@ uint8_t asm_run(uint8_t state){
     mem_buf.write(ADD_TYPE, 0, BATT_TYPE);
     mem_buf.write(ADD_LIVE_STATE, 0, 0);
     mem_buf.write(ADD_POS_NEIGHBOUR, 0, 10);
+    uint8_t pos_neighbour = mem_buf.read(ADD_POS_NEIGHBOUR, 0);
     mem_buf.write(ADD_POS_NEIGHBOUR + 1, 0, 16);
 
 
@@ -84,7 +86,14 @@ uint8_t asm_run(uint8_t state){
             }
             
             if(change_state != STATE_CHANGE){
-                change_state = STATE_NO_CHANGE;
+                count++;
+                if (count < 1){
+                    change_state = STATE_NO_CHANGE;
+                }
+                else{
+                    change_state = STATE_CHANGE;
+                    count = 0;
+                }
             }
 
             return change_state;
@@ -120,15 +129,35 @@ uint8_t asm_run(uint8_t state){
             int short_circuit_index = check_short_circuit(circuits);
             //COMPARE WITH FAULT PIN IF ATCUALLY A SHORT CIRCUIT
             if (short_circuit_index != -1) {
+                printf("SHORT CIRCUIT FOUND\n");
                 printf("Short circuit found at index: %d\n", short_circuit_index);
-                clear_all_lights();
-                light_up_red(circuits[short_circuit_index]);
+                if (switch_check(circuits[short_circuit_index])){
+                    clear_all_lights();
+                    light_up_red(circuits[short_circuit_index]);
+                    led_on(LED_1_R);
+                    led_on(LED_2_R);
+                }
+                else{
+                    clear_all_lights(); //NEEDS TO BE FIXED #################
+                }
             }
             else{
                 //RUN A CHECK ON ALL MEM_BUF MODULES WHICH ARE LIT UP AND CHECK IF THEY EXIST IN CIRCUITS
                 //IF THEY DON'T, CLEAR THE LIGHT
                 printf("Clearing live modules\n");
                 clear_live_modules(circuits);
+                printf("Orienting circuits\n");
+                orient_circuits(circuits);
+                //print circuits
+                printf("Circuits: \n");
+                for (size_t i = 0; i < circuits.size(); i++) {
+                    printf("Circuit %d: \n", i);
+                    for (size_t j = 0; j < circuits[i].size(); j++) {
+                        printf(" %d ", circuits[i][j]);
+                    }
+                    printf("\n");
+                }
+
                 printf("Enabling circuits\n");
                 enable_circuits(circuits);
             }
@@ -136,10 +165,38 @@ uint8_t asm_run(uint8_t state){
     }
 
     else if(state == STATE_NO_CHANGE){
-            if (circuits.empty()){
-                return STATE_SCAN;
+            int short_circuit_index = check_short_circuit(circuits);
+            //COMPARE WITH FAULT PIN IF ATCUALLY A SHORT CIRCUIT
+            if (short_circuit_index != -1) {
+                printf("SHORT CIRCUIT FOUND\n");
+                printf("Short circuit found at index: %d\n", short_circuit_index);
+                clear_all_lights();
+                if (switch_check(circuits[short_circuit_index])){
+                    light_up_red(circuits[short_circuit_index]);
+                    led_on(LED_1_R);
+                    led_on(LED_2_R);
+                }
+                else{
+                    for (size_t i = 0; i < circuits[short_circuit_index].size() - 1; i++) {
+                        uint8_t module_addr = circuits[short_circuit_index][i];
+                        if (module_addr == ADD_BATTERY){
+                        led_off(LED_1_B);
+                        led_off(LED_1_R);
+                        led_off(LED_2_B);
+                        led_off(LED_2_R);
+                        }
+                        else{
+                            printf("Writing OFF live state for: %d\n", module_addr);
+                            write_live_state(I2CINSTANCE, module_addr, LED_OFF);
+                            mem_buf.write(ADD_LIVE_STATE, module_addr, LED_OFF);
+                        }
+                    }
+                }
             }
-            check_switches(circuits);
+            else{
+                check_switches(circuits);
+            }
+            
             return STATE_SCAN;
     }
     else{
@@ -215,7 +272,7 @@ bool mem_address_delete(uint8_t *scan_buf) {
                     }
                 }
             }
-
+            mem_buf.write(0, i, 0); //clear the address
             column_shift(i);
             del = true;
         }

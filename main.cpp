@@ -41,7 +41,7 @@ void init_pwm_two_pins_32ms_50pct(uint pinA, uint pinB) {
 
 int main() {
     stdio_init_all();
-    sleep_ms(5000); // Wait for USB connection
+    
 
     mutex_t shared_memory_mutex;
     //extern volatile uint8_t mem_buf[MEM_BUF_SIZE][MEM_BUF_ROW_SIZE]; 
@@ -57,8 +57,8 @@ int main() {
     led_init(); 
     //enable led
 
-    led_on(LED_1_B);
-    led_on(LED_2_B);
+    //led_on(LED_1_B);
+    //led_on(LED_2_B);
 
     //state machine
     uint8_t state = STATE_SCAN;
@@ -66,23 +66,37 @@ int main() {
 
     init_pwm_two_pins_32ms_50pct(20, 21);
 
-
+    sleep_ms(5000); // Wait for USB connection
     while (1) {
 
         printf("-----------------------------------\n");
         printf("State: %d\n", state);
-        new_state = asm_run(state);
-        state = new_state;
+        //new_state = asm_run(state);
+        //state = new_state;
 
         //scan i2c
         // uint8_t buf[128];   
         // i2c_scan(i2c, buf);
 
         //turn off led on i2c
-        //write_live_state(I2CINSTANCE, 10, LED_OFF);
-        //write_live_state(I2CINSTANCE, 16, LED_OFF);
-        
-        
+        // for (int i = 10; i < 17; i++) {
+        //     write_live_state(I2CINSTANCE, i, LED_OFF);
+        // }
+        //write_live_state(I2CINSTANCE, 10, BLINK_RED);
+
+        uint8_t active_state = read_active_state(I2CINSTANCE, 11);
+        printf("Active state: %d\n", active_state);
+
+        //read neighbours
+        // uint8_t neighbours[4];
+        // for (int i = 0; i < 4; i++) {
+        //     neighbours[i] = 0;
+        // }
+        // read_neighbours(i2c, 11, neighbours);
+        // printf("Neighbours: %d %d %d %d\n", neighbours[0], neighbours[1], neighbours[2], neighbours[3]);
+
+
+
         // for (int i = 10; i < 17; i++) {
         // //read neighbours and print them
         //     uint8_t neighbourss[4];
@@ -102,7 +116,7 @@ int main() {
         // read_neighbours(i2c, 9, neighbours2);
         // printf("N2: %d %d %d %d\n", neighbours2[0], neighbours2[1], neighbours2[2], neighbours2[3]);
         printf("END--------------------------------\n");
-        sleep_ms(5000);
+        sleep_ms(3000);
     }
     return 0;
 }

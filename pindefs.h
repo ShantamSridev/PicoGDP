@@ -74,6 +74,7 @@
 #define I2C_ADD_ACTIVE 12  // polarisation, switch state (Only a read) (0 if fine, 1 if fault) (0 if not pressed, 1 if pressed)
 #define I2C_ADD_LIVE_STATE 16 // 1 if live, 0 if not, 2 if red (Only a Write)
 #define I2C_ADD_POS_NEIGHBOUR 20 // Only a Write
+#define I2C_ADD_NEG_NEIGHBOUR 24 // Only a Write
 
 //I2C ADDRESSES FOR LIGHTS
 #define BLINK_RED 2
