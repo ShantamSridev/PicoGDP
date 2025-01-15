@@ -57,8 +57,8 @@ int main() {
     led_init(); 
     //enable led
 
-    //led_on(LED_1_B);
-    //led_on(LED_2_B);
+    led_on(LED_1_B);
+    led_on(LED_2_B);
 
     //state machine
     uint8_t state = STATE_SCAN;
@@ -67,12 +67,14 @@ int main() {
     init_pwm_two_pins_32ms_50pct(20, 21);
 
     sleep_ms(5000); // Wait for USB connection
+    led_off(LED_1_B);
+    led_off(LED_2_B);
     while (1) {
 
         printf("-----------------------------------\n");
         printf("State: %d\n", state);
-        //new_state = asm_run(state);
-        //state = new_state;
+        new_state = asm_run(state);
+        state = new_state;
 
         //scan i2c
         // uint8_t buf[128];   
@@ -84,8 +86,9 @@ int main() {
         // }
         //write_live_state(I2CINSTANCE, 10, BLINK_RED);
 
-        uint8_t active_state = read_active_state(I2CINSTANCE, 11);
-        printf("Active state: %d\n", active_state);
+        // uint8_t active_state = read_active_state(I2CINSTANCE, 11);
+        // 
+        //printf("Active state: %d\n", active_state);
 
         //read neighbours
         // uint8_t neighbours[4];

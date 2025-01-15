@@ -112,6 +112,7 @@ bool enable_circuits(std::vector<std::vector<int>> &circuits) {
                             write_positive_neighbour(I2CINSTANCE, module_addr, prev_module);
                             printf("Reading polarisation for: %d\n", module_addr);
                             uint8_t polarisation = read_active_state(I2CINSTANCE, module_addr);
+                            printf("Polarisation: %d\n", polarisation);
                             if (polarisation == 1){
                                 printf("Polarisation found for: %d\n", module_addr);
                                 polarisation_found = true;
@@ -127,7 +128,7 @@ bool enable_circuits(std::vector<std::vector<int>> &circuits) {
             
         }
         if (!polarisation_found) {
-            if (switch_check(circuits[circuit_idx])){
+            if (!switch_check(circuits[circuit_idx])){
                 printf("Polarisation not found\n");
                 uint8_t pos_neighbour = 1;
                 for (size_t i = 1; i < circuits[circuit_idx].size() - 1; i++) {
@@ -220,17 +221,19 @@ bool switch_check(std::vector<int> &circuit) {
             if (mem_buf.read(0, j) == 0){
                 break;
             }   
-            if ((mem_buf.read(0, j) == module_addr)&& (mem_buf.read(ADD_TYPE, j) == BUTTON_TYPE || mem_buf.read(ADD_TYPE, j) == SENSOR_TYPE)){
-                printf("Reading active state for: %d\n", module_addr);
-                uint8_t active_state = read_active_state(I2CINSTANCE, module_addr);
-                mem_buf.write(ADD_ACTIVE, j, active_state);
-                if (active_state == 1){
-                    printf("Switch on\n");
-                    loop_on = true;
-                }
-                else{
-                    printf("Switch off\n");
-                    loop_on = false;
+            if ((mem_buf.read(0, j) == module_addr)){
+                if (mem_buf.read(ADD_TYPE, j) == BUTTON_TYPE || mem_buf.read(ADD_TYPE, j) == SENSOR_TYPE){
+                    printf("Reading active state for: %d\n", module_addr);
+                    uint8_t active_state = read_active_state(I2CINSTANCE, module_addr);
+                    mem_buf.write(ADD_ACTIVE, j, active_state);
+                    if (active_state == 1){
+                        printf("Switch on\n");
+                        loop_on = true;
+                    }
+                    else{
+                        printf("Switch off\n");
+                        loop_on = false;
+                    }
                 }
             }
         }
